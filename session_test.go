@@ -307,7 +307,7 @@ var _ = Describe("Session", func() {
 		})
 
 		It("handles BLOCKED frames", func() {
-			err := sess.handleFrames([]wire.Frame{&wire.BlockedFrame{}}, protocol.EncryptionUnspecified)
+			err := sess.handleFrames([]wire.Frame{&wire.DataBlockedFrame{}}, protocol.EncryptionUnspecified)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
@@ -599,7 +599,7 @@ var _ = Describe("Session", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(sent).To(BeTrue())
 			frames, _ := sess.framer.AppendControlFrames(nil, 1000)
-			Expect(frames).To(Equal([]wire.Frame{&wire.BlockedFrame{Offset: 1337}}))
+			Expect(frames).To(Equal([]wire.Frame{&wire.DataBlockedFrame{Offset: 1337}}))
 		})
 
 		It("sends a retransmission and a regular packet in the same run", func() {

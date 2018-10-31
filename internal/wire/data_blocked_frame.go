@@ -7,13 +7,13 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/utils"
 )
 
-// A BlockedFrame is a BLOCKED frame
-type BlockedFrame struct {
+// A DataBlockedFrame is a DATA_BLOCKED frame
+type DataBlockedFrame struct {
 	Offset protocol.ByteCount
 }
 
 // parseBlockedFrame parses a BLOCKED frame
-func parseBlockedFrame(r *bytes.Reader, _ protocol.VersionNumber) (*BlockedFrame, error) {
+func parseBlockedFrame(r *bytes.Reader, _ protocol.VersionNumber) (*DataBlockedFrame, error) {
 	if _, err := r.ReadByte(); err != nil {
 		return nil, err
 	}
@@ -21,12 +21,12 @@ func parseBlockedFrame(r *bytes.Reader, _ protocol.VersionNumber) (*BlockedFrame
 	if err != nil {
 		return nil, err
 	}
-	return &BlockedFrame{
+	return &DataBlockedFrame{
 		Offset: protocol.ByteCount(offset),
 	}, nil
 }
 
-func (f *BlockedFrame) Write(b *bytes.Buffer, version protocol.VersionNumber) error {
+func (f *DataBlockedFrame) Write(b *bytes.Buffer, version protocol.VersionNumber) error {
 	typeByte := uint8(0x08)
 	b.WriteByte(typeByte)
 	utils.WriteVarInt(b, uint64(f.Offset))
@@ -34,6 +34,6 @@ func (f *BlockedFrame) Write(b *bytes.Buffer, version protocol.VersionNumber) er
 }
 
 // Length of a written frame
-func (f *BlockedFrame) Length(version protocol.VersionNumber) protocol.ByteCount {
+func (f *DataBlockedFrame) Length(version protocol.VersionNumber) protocol.ByteCount {
 	return 1 + utils.VarIntLen(uint64(f.Offset))
 }

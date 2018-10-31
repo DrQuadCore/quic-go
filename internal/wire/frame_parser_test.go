@@ -96,7 +96,7 @@ var _ = Describe("Frame parsing", func() {
 	})
 
 	It("unpacks connection-level BLOCKED frames", func() {
-		f := &BlockedFrame{Offset: 0x1234}
+		f := &DataBlockedFrame{Offset: 0x1234}
 		buf := &bytes.Buffer{}
 		err := f.Write(buf, versionIETFFrames)
 		Expect(err).ToNot(HaveOccurred())

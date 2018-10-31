@@ -38,7 +38,7 @@ var _ = Describe("BLOCKED frame", func() {
 	Context("when writing", func() {
 		It("writes a sample frame", func() {
 			b := &bytes.Buffer{}
-			frame := BlockedFrame{Offset: 0xdeadbeef}
+			frame := DataBlockedFrame{Offset: 0xdeadbeef}
 			err := frame.Write(b, protocol.VersionWhatever)
 			Expect(err).ToNot(HaveOccurred())
 			expected := []byte{0x08}
@@ -47,7 +47,7 @@ var _ = Describe("BLOCKED frame", func() {
 		})
 
 		It("has the correct min length", func() {
-			frame := BlockedFrame{Offset: 0x12345}
+			frame := DataBlockedFrame{Offset: 0x12345}
 			Expect(frame.Length(versionIETFFrames)).To(Equal(1 + utils.VarIntLen(0x12345)))
 		})
 	})
