@@ -119,7 +119,7 @@ var _ = Describe("Frame parsing", func() {
 	})
 
 	It("unpacks STREAM_ID_BLOCKED frames", func() {
-		f := &StreamIDBlockedFrame{StreamID: 0x1234567}
+		f := &StreamsBlockedFrame{StreamID: 0x1234567}
 		buf := &bytes.Buffer{}
 		err := f.Write(buf, versionIETFFrames)
 		Expect(err).ToNot(HaveOccurred())

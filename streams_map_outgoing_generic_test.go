@@ -124,7 +124,7 @@ var _ = Describe("Streams Map (outgoing)", func() {
 
 		It("works with stream 0", func() {
 			m = newOutgoingItemsMap(0, newItem, mockSender.queueControlFrame)
-			mockSender.EXPECT().queueControlFrame(&wire.StreamIDBlockedFrame{StreamID: 0})
+			mockSender.EXPECT().queueControlFrame(&wire.StreamsBlockedFrame{StreamID: 0})
 			done := make(chan struct{})
 			go func() {
 				defer GinkgoRecover()
@@ -165,7 +165,7 @@ var _ = Describe("Streams Map (outgoing)", func() {
 
 		It("queues a STREAM_ID_BLOCKED frame if no stream can be opened", func() {
 			m.SetMaxStream(firstNewStream)
-			mockSender.EXPECT().queueControlFrame(&wire.StreamIDBlockedFrame{StreamID: firstNewStream})
+			mockSender.EXPECT().queueControlFrame(&wire.StreamsBlockedFrame{StreamID: firstNewStream})
 			_, err := m.OpenStream()
 			Expect(err).ToNot(HaveOccurred())
 			_, err = m.OpenStream()
@@ -174,7 +174,7 @@ var _ = Describe("Streams Map (outgoing)", func() {
 
 		It("only sends one STREAM_ID_BLOCKED frame for one stream ID", func() {
 			m.SetMaxStream(firstNewStream)
-			mockSender.EXPECT().queueControlFrame(&wire.StreamIDBlockedFrame{StreamID: firstNewStream})
+			mockSender.EXPECT().queueControlFrame(&wire.StreamsBlockedFrame{StreamID: firstNewStream})
 			_, err := m.OpenStream()
 			Expect(err).ToNot(HaveOccurred())
 			// try to open a stream twice, but expect only one STREAM_ID_BLOCKED to be sent

@@ -25,7 +25,7 @@ type outgoingUniStreamsMap struct {
 	highestBlocked protocol.StreamID // the highest stream ID that we queued a STREAM_ID_BLOCKED frame for
 
 	newStream            func(protocol.StreamID) sendStreamI
-	queueStreamIDBlocked func(*wire.StreamIDBlockedFrame)
+	queueStreamIDBlocked func(*wire.StreamsBlockedFrame)
 
 	closeErr error
 }
@@ -39,7 +39,7 @@ func newOutgoingUniStreamsMap(
 		streams:              make(map[protocol.StreamID]sendStreamI),
 		nextStream:           nextStream,
 		newStream:            newStream,
-		queueStreamIDBlocked: func(f *wire.StreamIDBlockedFrame) { queueControlFrame(f) },
+		queueStreamIDBlocked: func(f *wire.StreamsBlockedFrame) { queueControlFrame(f) },
 	}
 	m.cond.L = &m.mutex
 	return m
@@ -74,7 +74,7 @@ func (m *outgoingUniStreamsMap) openStreamImpl() (sendStreamI, error) {
 	}
 	if !m.maxStreamSet || m.nextStream > m.maxStream {
 		if m.maxStream == 0 || m.highestBlocked < m.maxStream {
-			m.queueStreamIDBlocked(&wire.StreamIDBlockedFrame{StreamID: m.maxStream})
+			m.queueStreamIDBlocked(&wire.StreamsBlockedFrame{StreamID: m.maxStream})
 			m.highestBlocked = m.maxStream
 		}
 		return nil, qerr.TooManyOpenStreams
