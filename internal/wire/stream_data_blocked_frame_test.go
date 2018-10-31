@@ -39,7 +39,7 @@ var _ = Describe("STREAM_BLOCKED frame", func() {
 
 	Context("writing", func() {
 		It("has proper min length", func() {
-			f := &StreamBlockedFrame{
+			f := &StreamDataBlockedFrame{
 				StreamID: 0x1337,
 				Offset:   0xdeadbeef,
 			}
@@ -48,7 +48,7 @@ var _ = Describe("STREAM_BLOCKED frame", func() {
 
 		It("writes a sample frame", func() {
 			b := &bytes.Buffer{}
-			f := &StreamBlockedFrame{
+			f := &StreamDataBlockedFrame{
 				StreamID: 0xdecafbad,
 				Offset:   0x1337,
 			}

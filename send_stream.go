@@ -169,7 +169,7 @@ func (s *sendStream) popStreamFrameImpl(maxBytes protocol.ByteCount) (bool /* co
 			return false, nil, false
 		}
 		if isBlocked, offset := s.flowController.IsNewlyBlocked(); isBlocked {
-			s.sender.queueControlFrame(&wire.StreamBlockedFrame{
+			s.sender.queueControlFrame(&wire.StreamDataBlockedFrame{
 				StreamID: s.streamID,
 				Offset:   offset,
 			})

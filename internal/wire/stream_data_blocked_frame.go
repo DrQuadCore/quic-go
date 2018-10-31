@@ -7,14 +7,13 @@ import (
 	"github.com/lucas-clemente/quic-go/internal/utils"
 )
 
-// A StreamBlockedFrame in QUIC
-type StreamBlockedFrame struct {
+// A StreamDataBlockedFrame is a STREAM_DATA_BLOCKED frame
+type StreamDataBlockedFrame struct {
 	StreamID protocol.StreamID
 	Offset   protocol.ByteCount
 }
 
-// parseStreamBlockedFrame parses a STREAM_BLOCKED frame
-func parseStreamBlockedFrame(r *bytes.Reader, _ protocol.VersionNumber) (*StreamBlockedFrame, error) {
+func parseStreamBlockedFrame(r *bytes.Reader, _ protocol.VersionNumber) (*StreamDataBlockedFrame, error) {
 	if _, err := r.ReadByte(); err != nil { // read the TypeByte
 		return nil, err
 	}
@@ -26,14 +25,13 @@ func parseStreamBlockedFrame(r *bytes.Reader, _ protocol.VersionNumber) (*Stream
 	if err != nil {
 		return nil, err
 	}
-	return &StreamBlockedFrame{
+	return &StreamDataBlockedFrame{
 		StreamID: protocol.StreamID(sid),
 		Offset:   protocol.ByteCount(offset),
 	}, nil
 }
 
-// Write writes a STREAM_BLOCKED frame
-func (f *StreamBlockedFrame) Write(b *bytes.Buffer, version protocol.VersionNumber) error {
+func (f *StreamDataBlockedFrame) Write(b *bytes.Buffer, version protocol.VersionNumber) error {
 	b.WriteByte(0x09)
 	utils.WriteVarInt(b, uint64(f.StreamID))
 	utils.WriteVarInt(b, uint64(f.Offset))
@@ -41,6 +39,6 @@ func (f *StreamBlockedFrame) Write(b *bytes.Buffer, version protocol.VersionNumb
 }
 
 // Length of a written frame
-func (f *StreamBlockedFrame) Length(version protocol.VersionNumber) protocol.ByteCount {
+func (f *StreamDataBlockedFrame) Length(version protocol.VersionNumber) protocol.ByteCount {
 	return 1 + utils.VarIntLen(uint64(f.StreamID)) + utils.VarIntLen(uint64(f.Offset))
 }

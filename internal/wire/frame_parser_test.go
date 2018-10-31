@@ -106,7 +106,7 @@ var _ = Describe("Frame parsing", func() {
 	})
 
 	It("unpacks stream-level BLOCKED frames", func() {
-		f := &StreamBlockedFrame{
+		f := &StreamDataBlockedFrame{
 			StreamID: 0xdeadbeef,
 			Offset:   0xdead,
 		}
