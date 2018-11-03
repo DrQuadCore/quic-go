@@ -3,6 +3,7 @@ package handshake
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"sort"
 	"time"
@@ -43,7 +44,7 @@ type TransportParameters struct {
 	StatelessResetToken []byte
 }
 
-func (p *TransportParameters) unmarshal(data []byte) error {
+func (p *TransportParameters) unmarshal(data []byte, sentBy protocol.Perspective) error {
 	// needed to check that every parameter is only sent at most once
 	var parameterIDs []transportParameterID
 
@@ -106,6 +107,9 @@ func (p *TransportParameters) unmarshal(data []byte) error {
 			}
 			p.DisableMigration = true
 		case statelessResetTokenParameterID:
+			if sentBy == protocol.PerspectiveClient {
+				return errors.New("client sent a stateless_reset_token")
+			}
 			if paramLen != 16 {
 				return fmt.Errorf("wrong length for stateless_reset_token: %d (expected 16)", paramLen)
 			}

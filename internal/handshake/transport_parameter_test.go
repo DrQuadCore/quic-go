@@ -59,7 +59,7 @@ var _ = Describe("Transport Parameters", func() {
 			}
 		})
 		It("reads parameters", func() {
-			Expect(params.unmarshal(marshal(parameters))).To(Succeed())
+			Expect(params.unmarshal(marshal(parameters), protocol.PerspectiveServer)).To(Succeed())
 			Expect(params.InitialMaxStreamDataBidiLocal).To(Equal(protocol.ByteCount(0x11223344)))
 			Expect(params.InitialMaxStreamDataBidiRemote).To(Equal(protocol.ByteCount(0x22334455)))
 			Expect(params.InitialMaxStreamDataUni).To(Equal(protocol.ByteCount(0x33445566)))
@@ -78,7 +78,7 @@ var _ = Describe("Transport Parameters", func() {
 				maxPacketSizeParameterID: {0x73, 0x31},
 			}
 			data = append(data, marshal(parameters)...)
-			err := params.unmarshal(data)
+			err := params.unmarshal(data, protocol.PerspectiveServer)
 			Expect(err).To(MatchError(fmt.Sprintf("received duplicate transport parameter %#x", maxPacketSizeParameterID)))
 		})
 
@@ -86,80 +86,85 @@ var _ = Describe("Transport Parameters", func() {
 			t := 2 * time.Second
 			Expect(t).To(BeNumerically("<", protocol.MinRemoteIdleTimeout))
 			parameters[idleTimeoutParameterID] = []byte{0, uint8(t.Seconds())}
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(params.IdleTimeout).To(Equal(protocol.MinRemoteIdleTimeout))
 		})
 
 		It("rejects the parameters if the initial_max_stream_data_bidi_local has the wrong length", func() {
 			parameters[initialMaxStreamDataBidiLocalParameterID] = []byte{0x11, 0x22, 0x33} // should be 4 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for initial_max_stream_data_bidi_local: 3 (expected 4)"))
 		})
 
 		It("rejects the parameters if the initial_max_stream_data_bidi_remote has the wrong length", func() {
 			parameters[initialMaxStreamDataBidiRemoteParameterID] = []byte{0x11, 0x22, 0x33} // should be 4 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for initial_max_stream_data_bidi_remote: 3 (expected 4)"))
 		})
 
 		It("rejects the parameters if the initial_max_stream_data_uni has the wrong length", func() {
 			parameters[initialMaxStreamDataUniParameterID] = []byte{0x11, 0x22, 0x33} // should be 4 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for initial_max_stream_data_uni: 3 (expected 4)"))
 		})
 
 		It("rejects the parameters if the initial_max_data has the wrong length", func() {
 			parameters[initialMaxDataParameterID] = []byte{0x11, 0x22, 0x33} // should be 4 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for initial_max_data: 3 (expected 4)"))
 		})
 
 		It("rejects the parameters if the initial_max_stream_id_bidi has the wrong length", func() {
 			parameters[initialMaxBidiStreamsParameterID] = []byte{0x11, 0x22, 0x33} // should be 2 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for initial_max_stream_id_bidi: 3 (expected 2)"))
 		})
 
 		It("rejects the parameters if the initial_max_stream_id_bidi has the wrong length", func() {
 			parameters[initialMaxUniStreamsParameterID] = []byte{0x11, 0x22, 0x33} // should be 2 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for initial_max_stream_id_uni: 3 (expected 2)"))
 		})
 
 		It("rejects the parameters if the initial_idle_timeout has the wrong length", func() {
 			parameters[idleTimeoutParameterID] = []byte{0x11, 0x22, 0x33} // should be 2 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for idle_timeout: 3 (expected 2)"))
 		})
 
 		It("rejects the parameters if max_packet_size has the wrong length", func() {
 			parameters[maxPacketSizeParameterID] = []byte{0x11} // should be 2 bytes
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for max_packet_size: 1 (expected 2)"))
 		})
 
 		It("rejects max_packet_sizes smaller than 1200 bytes", func() {
 			parameters[maxPacketSizeParameterID] = []byte{0x4, 0xaf} // 0x4af = 1199
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("invalid value for max_packet_size: 1199 (minimum 1200)"))
 		})
 
 		It("rejects the parameters if disable_connection_migration has the wrong length", func() {
 			parameters[disableMigrationParameterID] = []byte{0x11} // should empty
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for disable_migration: 1 (expected empty)"))
 		})
 
 		It("rejects the parameters if the stateless_reset_token has the wrong length", func() {
 			parameters[statelessResetTokenParameterID] = statelessResetToken[1:]
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).To(MatchError("wrong length for stateless_reset_token: 15 (expected 16)"))
+		})
+
+		It("rejects the parameters if the client sent a stateless_reset_token", func() {
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveClient)
+			Expect(err).To(MatchError("client sent a stateless_reset_token"))
 		})
 
 		It("ignores unknown parameters", func() {
 			parameters[1337] = []byte{42}
-			err := params.unmarshal(marshal(parameters))
+			err := params.unmarshal(marshal(parameters), protocol.PerspectiveServer)
 			Expect(err).ToNot(HaveOccurred())
 		})
 	})
@@ -181,7 +186,7 @@ var _ = Describe("Transport Parameters", func() {
 			params.marshal(b)
 
 			p := &TransportParameters{}
-			Expect(p.unmarshal(b.Bytes())).To(Succeed())
+			Expect(p.unmarshal(b.Bytes(), protocol.PerspectiveServer)).To(Succeed())
 			Expect(p.InitialMaxStreamDataBidiLocal).To(Equal(params.InitialMaxStreamDataBidiLocal))
 			Expect(p.InitialMaxStreamDataBidiRemote).To(Equal(params.InitialMaxStreamDataBidiRemote))
 			Expect(p.InitialMaxStreamDataUni).To(Equal(params.InitialMaxStreamDataUni))
